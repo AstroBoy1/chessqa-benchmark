@@ -307,10 +307,13 @@ class OpenrouterInferencer:
         self.enable_thinking = enable_thinking
         # Additional filename suffix to differentiate experiment variants in outputs
         self.filename_suffix = filename_suffix
-        keys_path = Path(__file__).parent.parent.parent / "keys" / "api_keys.json"
+        #keys_path = Path(__file__).parent.parent.parent / "keys" / "api_keys.json"
+        keys_path = Path(__file__).parent.parent.parent / "chessqa-benchmark/keys" / "key.json"
         with open(keys_path, 'r') as f:
             keys = json.load(f)
         self.api_key = keys.get("openrouter_api_key")
+        breakpoint()
+        self.api_key = "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"
         self.url = "https://openrouter.ai/api/v1/chat/completions"
 
     def call_model(self, prompt: str) -> Tuple[str, str, Dict[str, Any]]:
@@ -356,6 +359,9 @@ class OpenrouterInferencer:
 
         for attempt in range(self.max_retries):
             try:
+                print("Sending request...")
+                print("data:", data)  # Debug: print the data being sent
+                print("max retries:", self.max_retries)
                 response = requests.post(
                     self.url,
                     headers=headers,
@@ -411,7 +417,9 @@ class OpenrouterInferencer:
             results = []
             for i, task in enumerate(tqdm(tasks, desc="Processing tasks")):
                 prompt = format_prompt(task, self.add_context, format_example_group)
+                print("Prompt:", prompt)  # Debug: print the prompt
                 response, thinking_content, usage = self.call_model(prompt)
+                print("Response:", response)  # Debug: print the response
                 extracted, extraction_successful = extract_answer(response)
 
                 # Use answer_type-aware evaluation with error type classification
@@ -757,7 +765,9 @@ def main():
             # For resume mode, save existing results first, then append new ones
             # For no-resume mode, just append new results
             save_existing_first = not args.no_resume and len(complete_results) > 0
+            print("starting inference on incomplete tasks...")
             new_results = inferencer.run_inference(incomplete_tasks, num_workers, args.use_format_example_group, str(args.output_dir), args.save_interval, complete_results, save_existing_first)
+            print("inference completed.")
             end_time = time.time()
 
             # Combine complete and new results, maintaining original task order
