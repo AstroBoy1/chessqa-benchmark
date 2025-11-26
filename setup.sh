@@ -11,78 +11,82 @@ echo "=================="
 echo
 
 # Python
-if ! command -v python >/dev/null 2>&1; then
-  echo "❌ Python is not installed. Please install Python 3.8+ first."
-  exit 1
-fi
-echo "✅ Python found: $(python --version)"
+# if ! command -v python >/dev/null 2>&1; then
+#   echo "❌ Python is not installed. Please install Python 3.8+ first."
+#   exit 1
+# fi
+# echo "✅ Python found: $(python --version)"
+
+# conda environment installation instead
+#conda create -n chessqa python=3.11 -y
+#conda activate chessqa
 
 # Dependencies
-echo "📦 Installing Python dependencies..."
-if python -m pip install -r requirements.txt; then
-  echo "✅ Dependencies installed"
-else
-  echo "❌ Failed to install dependencies"
-  exit 1
-fi
+# echo "📦 Installing Python dependencies..."
+# if python -m pip install -r requirements.txt; then
+#   echo "✅ Dependencies installed"
+# else
+#   echo "❌ Failed to install dependencies"
+#   exit 1
+# fi
 
 # API keys (OpenRouter)
-echo
-echo "🔑 API key setup (OpenRouter)"
-if [ -z "${OPENROUTER_API_KEY:-}" ]; then
-  if [ -f "keys/openrouter.key" ]; then
-    export OPENROUTER_API_KEY="$(cat keys/openrouter.key)"
-    echo "✅ Loaded OPENROUTER_API_KEY from keys/openrouter.key"
-  else
-    echo "⚠️  OPENROUTER_API_KEY not set. To enable cloud inference via OpenRouter:"
-    echo "   - Export key: export OPENROUTER_API_KEY=\"your_key\""
-    echo "   - Or save it to keys/openrouter.key"
-    echo "   Get a key: https://openrouter.ai/"
-  fi
-else
-  echo "✅ Detected OPENROUTER_API_KEY in environment"
-fi
+# echo
+# echo "🔑 API key setup (OpenRouter)"
+# if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+#   if [ -f "keys/openrouter.key" ]; then
+#     export OPENROUTER_API_KEY="$(cat keys/openrouter.key)"
+#     echo "✅ Loaded OPENROUTER_API_KEY from keys/openrouter.key"
+#   else
+#     echo "⚠️  OPENROUTER_API_KEY not set. To enable cloud inference via OpenRouter:"
+#     echo "   - Export key: export OPENROUTER_API_KEY=\"your_key\""
+#     echo "   - Or save it to keys/openrouter.key"
+#     echo "   Get a key: https://openrouter.ai/"
+#   fi
+# else
+#   echo "✅ Detected OPENROUTER_API_KEY in environment"
+# fi
 
 # Data files
-echo
-echo "📁 Checking for source data (under data/raw)..."
-need_help=0
-if [ -f "data/raw/lichess_db_puzzle.csv" ]; then
-  echo "✅ lichess_db_puzzle.csv"
-else
-  echo "⚠️  Missing data/raw/lichess_db_puzzle.csv (Lichess puzzles)"
-  need_help=1
-fi
-if [ -f "data/raw/lichess_db_eval.jsonl.zst" ]; then
-  echo "✅ lichess_db_eval.jsonl.zst"
-else
-  echo "⚠️  Missing data/raw/lichess_db_eval.jsonl.zst (engine evals for Position Judgment)"
-  need_help=1
-fi
-if [ -f "data/raw/lichess_db_broadcast_2025-04.pgn" ]; then
-  echo "✅ lichess_db_broadcast_2025-04.pgn"
-else
-  echo "ℹ️  Optional: data/raw/lichess_db_broadcast_2025-04.pgn (state tracking)"
-fi
-if [ "$need_help" -eq 1 ]; then
-  echo "   Download from https://database.lichess.org/ and place files under data/raw/"
-fi
+# echo
+# echo "📁 Checking for source data (under data/raw)..."
+# need_help=0
+# if [ -f "data/raw/lichess_db_puzzle.csv" ]; then
+#   echo "✅ lichess_db_puzzle.csv"
+# else
+#   echo "⚠️  Missing data/raw/lichess_db_puzzle.csv (Lichess puzzles)"
+#   need_help=1
+# fi
+# if [ -f "data/raw/lichess_db_eval.jsonl.zst" ]; then
+#   echo "✅ lichess_db_eval.jsonl.zst"
+# else
+#   echo "⚠️  Missing data/raw/lichess_db_eval.jsonl.zst (engine evals for Position Judgment)"
+#   need_help=1
+# fi
+# if [ -f "data/raw/lichess_db_broadcast_2025-04.pgn" ]; then
+#   echo "✅ lichess_db_broadcast_2025-04.pgn"
+# else
+#   echo "ℹ️  Optional: data/raw/lichess_db_broadcast_2025-04.pgn (state tracking)"
+# fi
+# if [ "$need_help" -eq 1 ]; then
+#   echo "   Download from https://database.lichess.org/ and place files under data/raw/"
+# fi
 
 # Optional: vLLM (used by comment cleaning/judging helpers)
-echo
-echo "🚀 Optional dependency check (vLLM)"
-if python - <<'PY'
-try:
-  import vllm  # noqa: F401
-  print('yes')
-except Exception:
-  pass
-PY
-then
-  echo "✅ vLLM installed (used by comment cleaning/judging helpers)"
-else
-  echo "ℹ️  vLLM not installed (optional). Install with: pip install vllm"
-fi
+# echo
+# echo "🚀 Optional dependency check (vLLM)"
+# if python - <<'PY'
+# try:
+#   import vllm  # noqa: F401
+#   print('yes')
+# except Exception:
+#   pass
+# PY
+# then
+#   echo "✅ vLLM installed (used by comment cleaning/judging helpers)"
+# else
+#   echo "ℹ️  vLLM not installed (optional). Install with: pip install vllm"
+# fi
 
 # Next steps
 echo
@@ -100,6 +104,8 @@ echo "   python code/dataset/04_position_judgement.py --data_path data/raw/liche
 echo "     --output_root data/benchmark --tasks_per_category 100 --max_evaluations 10000"
 echo "   python code/dataset/05_semantic.py --input data/mid/comment_dataset.final.json \\"
 echo "     --output_root data/benchmark --N_sample_mcq 100"
+
+exit 0
 echo
 echo "2) Run inference (OpenRouter):"
 echo "   OPENROUTER_API_KEY=... python code/eval/run_openrouter.py \\"

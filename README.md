@@ -45,7 +45,7 @@ Place the following under `data/raw/` (paths match defaults in scripts):
 
 Structural
 ```bash
-python code/dataset/01_structural.py \
+python dataset/01_structural.py \
   --puzzle_path data/raw/lichess_db_puzzle.csv \
   --pgn_path data/raw/lichess_db_broadcast_2025-04.pgn \
   --output_root data/benchmark --N_sample 100
@@ -53,14 +53,14 @@ python code/dataset/01_structural.py \
 
 Motifs
 ```bash
-python code/dataset/02_motifs.py \
+python dataset/02_motifs.py \
   --puzzle_path data/raw/lichess_db_puzzle.csv \
   --output_root data/benchmark --N_sample 100
 ```
 
 Short Tactics
 ```bash
-python code/dataset/03_short_tactics.py \
+python dataset/03_short_tactics.py \
   --puzzle_path data/raw/lichess_db_puzzle.csv \
   --all_themes_path data/info/all_themes_to_include.json \
   --output_root data/benchmark --N_sample_rating 100 --N_sample_theme 25
@@ -68,14 +68,14 @@ python code/dataset/03_short_tactics.py \
 
 Position Judgement
 ```bash
-python code/dataset/04_position_judgement.py \
+python dataset/04_position_judgement.py \
   --data_path data/raw/lichess_db_eval.jsonl.zst \
   --output_root data/benchmark --tasks_per_category 100 --max_evaluations 10000
 ```
 
 Semantic (MCQ from commentary; requires sentence-transformers)
 ```bash
-python code/dataset/05_semantic.py \
+python dataset/05_semantic.py \
   --input data/mid/comment_dataset.final.json \
   --output_root data/benchmark --N_sample_mcq 100
 ```
@@ -86,10 +86,13 @@ Note: comment cleaning and judging helpers for producing `data/mid/comment_datas
 
 Basic run
 ```bash
-OPENROUTER_API_KEY=... python code/eval/run_openrouter.py \
+python eval/run_openrouter.py \
   --dataset-root benchmark \
   --model anthropic/claude-3.5-haiku \
-  --output-dir results --workers 256
+  --output-dir results --workers 1 \
+  --max-tasks 1 \
+  --max-retries 1 \
+  --max-tokens 1000
 ```
 
 Options
