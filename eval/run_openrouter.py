@@ -312,8 +312,7 @@ class OpenrouterInferencer:
         with open(keys_path, 'r') as f:
             keys = json.load(f)
         self.api_key = keys.get("openrouter_api_key")
-        breakpoint()
-        self.api_key = "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"
+        #breakpoint()
         self.url = "https://openrouter.ai/api/v1/chat/completions"
 
     def call_model(self, prompt: str) -> Tuple[str, str, Dict[str, Any]]:
