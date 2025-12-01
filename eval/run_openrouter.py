@@ -360,7 +360,7 @@ class OpenrouterInferencer:
             try:
                 print("Sending request...")
                 print("data:", data)  # Debug: print the data being sent
-                print("max retries:", self.max_retries)
+                #print("max retries:", self.max_retries)
                 response = requests.post(
                     self.url,
                     headers=headers,
