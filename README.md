@@ -95,6 +95,8 @@ python eval/run_openrouter.py \
   --max-tokens 1000
 ```
 
+# 3500 total rows
+
 Options
 - Limit total tasks: `--max-tasks 800`
 - Uniform sampling per task type: `--N-samples-per-task 50`
