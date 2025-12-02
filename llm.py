@@ -3,50 +3,46 @@
 # pip install bitsandbytes
 # uses 15GB
 
-import transformers
+from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
 
-# model_id = "meta-llama/Llama-3.1-8B"
+torch.manual_seed(0)
 
-# pipeline = transformers.pipeline(
-#     "text-generation", model=model_id, model_kwargs={"dtype": torch.bfloat16}, device_map="auto"
-# )
-
-# print(pipeline("What moves can white make in the starting chess position?"))
-
-# 51GB
-# Use a pipeline as a high-level helper
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-import torch
-
-# Quantization
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.bfloat16,
-    bnb_4bit_use_double_quant=True,
-)
-
-# Load TEXT-ONLY model (no vision tower)
-model_id = "google/gemma-3-27b-it"
+model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-
 model = AutoModelForCausalLM.from_pretrained(
     model_id,
-    quantization_config=bnb_config,
+    dtype=torch.bfloat16,
     device_map="auto",
 )
 
-# Text-only input
-prompt = "List all legal moves for White from the starting chess position."
+messages = [
+    {"role": "system", "content": "You are a chess expert."},
+    {"role": "user", "content": "When should you castle in chess?"},
+]
 
-inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+return_output = tokenizer.apply_chat_template(
+    messages,
+    add_generation_prompt=True,
+    return_tensors="pt",
+    return_dict=True
+).to(model.device)
 
-with torch.inference_mode():
-    output_ids = model.generate(
-        **inputs,
-        max_new_tokens=128,
-        do_sample=False
-    )
+terminators = [
+    tokenizer.eos_token_id,
+    tokenizer.convert_tokens_to_ids("<|eot_id|>")
+]
 
-print(tokenizer.decode(output_ids[0], skip_special_tokens=True))
+input_ids = return_output["input_ids"]
+attention_mask = return_output["attention_mask"]
+
+outputs = model.generate(
+    input_ids,
+    attention_mask=attention_mask,
+    max_new_tokens=512,
+    eos_token_id=terminators,
+    do_sample=False,
+)
+response = outputs[0][input_ids.shape[-1]:]
+print(tokenizer.decode(response, skip_special_tokens=True))
