@@ -298,7 +298,7 @@ def _build_variant_suffix(add_context: bool, format_example_group: int) -> str:
     return ("-" + "-".join(parts)) if parts else ""
 
 class OpenrouterInferencer:
-    def __init__(self, model: str, add_context: bool = False, max_retries: int = 5, timeout: int = 60, max_tokens: int = 2048, enable_thinking: bool = False, filename_suffix: str = ""):
+    def __init__(self, model: str, add_context: bool = False, max_retries: int = 5, timeout: int = 60, max_tokens: int = 2048, enable_thinking: bool = False, filename_suffix: str = "", url: str = "https://openrouter.ai/api/v1/chat/completions", key_path: str = "key.json"):
         self.model = model
         self.add_context = add_context
         self.max_retries = max_retries
@@ -308,12 +308,13 @@ class OpenrouterInferencer:
         # Additional filename suffix to differentiate experiment variants in outputs
         self.filename_suffix = filename_suffix
         #keys_path = Path(__file__).parent.parent.parent / "keys" / "api_keys.json"
-        keys_path = Path(__file__).parent.parent.parent / "chessqa-benchmark/keys" / "key.json"
+        keys_path = Path(__file__).parent.parent.parent / "chessqa-benchmark/keys" / key_path
         with open(keys_path, 'r') as f:
             keys = json.load(f)
         self.api_key = keys.get("openrouter_api_key")
         #breakpoint()
-        self.url = "https://openrouter.ai/api/v1/chat/completions"
+        #self.url = "https://openrouter.ai/api/v1/chat/completions"
+        self.url = url
 
     def call_model(self, prompt: str) -> Tuple[str, str, Dict[str, Any]]:
         """Call model with exponential retry. Returns (content, thinking_content, usage)."""
@@ -758,6 +759,8 @@ def main():
                 args.max_tokens,
                 args.enable_thinking,
                 filename_suffix=variant_suffix,
+                url=args.url,
+                key_path=args.key_path
             )
 
             start_time = time.time()
@@ -995,7 +998,9 @@ def parse_arguments():
                        help='Enable reasoning/thinking mode for models that support it')
     parser.add_argument('--eval-only', action='store_true',
                        help='Re-evaluate existing results without running inference (regenerates stats and pretty JSON)')
-
+    parser.add_argument('--url', type=str, default='https://openrouter.ai/api/v1/chat/completions',)
+    parser.add_argument('--key-path', type=str, default='key.json',
+                       help='Path to the API key JSON file relative to the keys directory')
     return parser.parse_args()
 
 
