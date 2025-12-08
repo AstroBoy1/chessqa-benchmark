@@ -14,6 +14,7 @@
 #   --max-retries 1 \
 #   --max-tokens 1000
 
+# took 13 hours, 5.7%
 python eval/run_openrouter.py \
   --dataset-root benchmark \
   --model NousResearch/Meta-Llama-3-8B-Instruct \
