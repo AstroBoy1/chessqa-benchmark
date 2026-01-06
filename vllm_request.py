@@ -10,8 +10,10 @@ headers = {
     "Authorization": f"Bearer {API_KEY}"
 }
 
+model_name = "NousResearch/Meta-Llama-3-8B-Instruct"
+model_name = "/nfs/stak/users/omorim/hpc-share/omorim/projects/chess_explanation/models/llama3-qlora"
 payload = {
-    "model": "NousResearch/Meta-Llama-3-8B-Instruct",
+    "model": model_name,
     "messages": [
         {"role": "user", "content": "Explain chess."}
     ],

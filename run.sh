@@ -14,10 +14,13 @@
 #   --max-retries 1 \
 #   --max-tokens 1000
 
+model_name = "NousResearch/Meta-Llama-3-8B-Instruct"
+model_name = "/nfs/stak/users/omorim/hpc-share/omorim/projects/chess_explanation/models/llama3-qlora"
 # took 13 hours, 5.7%
+
 python eval/run_openrouter.py \
   --dataset-root benchmark \
-  --model NousResearch/Meta-Llama-3-8B-Instruct \
+  --model $model_name \
   --output-dir results --workers 1 \
   --max-tasks 3500 \
   --max-retries 1 \
